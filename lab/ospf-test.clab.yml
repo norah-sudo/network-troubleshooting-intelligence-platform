@@ -1,0 +1,113 @@
+
+# ==================================================
+# NETWORK TOPOLOGY DOCUMENTATION
+# ==================================================
+#
+# Lab: Network Troubleshooting Intelligence Platform
+# Platform: Containerlab + FRRouting + Open vSwitch
+#
+# Nodes:
+# - Routers: r1, r2
+# - Switches: sw1, sw2
+# - VLAN 10 hosts: hr1, hr2
+# - VLAN 20 hosts: it1, it2
+#
+# OSPF routing:
+# - r1:eth1 = 10.0.12.1/30
+# - r2:eth1 = 10.0.12.2/30
+# - Expected healthy state: OSPF FULL
+#
+# VLAN 10:
+# - hr1:eth1 = 192.168.10.11/24
+# - hr2:eth1 = 192.168.10.12/24
+# - Access ports: sw1p2, sw2p2
+# - Data path: hr1 -> sw1p2 -> sw1p1 ->
+#   sw2p1 -> sw2p2 -> hr2
+#
+# VLAN 20:
+# - it1:eth1 = 192.168.20.11/24
+# - it2:eth1 = 192.168.20.12/24
+# - Access ports: sw1p3, sw2p3
+# - Data path: it1 -> sw1p3 -> sw1p1 ->
+#   sw2p1 -> sw2p3 -> it2
+#
+# Trunk ports:
+# - sw1p1 <-> sw2p1: VLANs 10,20
+# - r1:eth2 <-> sw1p4: VLANs 10,20
+# - r2:eth2 <-> sw2p4: VLANs 10,20
+#
+# Management:
+# - Router SSH uses Containerlab/Docker management.
+# - Management addresses are dynamically assigned.
+# - Management access is separate from tested data links.
+# - Collector SSH account: collector (restricted).
+# - OVS evidence is collected locally.
+#
+# Expected healthy state:
+# - VLAN 10 connectivity: successful
+# - VLAN 20 connectivity: successful
+# - OSPF adjacency: FULL
+# - Unified diagnosis: 12/12 healthy
+#
+# These comments document the existing topology.
+# No new nodes, links, or diagnostic scenarios.
+# ==================================================
+name: ospftest
+
+topology:
+  nodes:
+    r1:
+      kind: frr
+      image: quay.io/frrouting/frr:containerlab-10.7.1
+      startup-config: configs/r1/frr.conf
+      daemons:
+        - ospfd
+      exec:
+        - ip addr replace 10.0.12.1/30 dev eth1
+
+    r2:
+      kind: frr
+      image: quay.io/frrouting/frr:containerlab-10.7.1
+      startup-config: configs/r2/frr.conf
+      daemons:
+        - ospfd
+      exec:
+        - ip addr replace 10.0.12.2/30 dev eth1
+
+    sw1:
+      kind: ovs-bridge
+
+    sw2:
+      kind: ovs-bridge
+    hr1:
+      kind: linux
+      image: alpine:3.22
+      exec:
+        - ip addr add 192.168.10.11/24 dev eth1
+
+    hr2:
+      kind: linux
+      image: alpine:3.22
+      exec:
+        - ip addr add 192.168.10.12/24 dev eth1
+    it1:
+      kind: linux
+      image: alpine:3.22
+      exec:
+        - ip addr add 192.168.20.11/24 dev eth1
+
+    it2:
+      kind: linux
+      image: alpine:3.22
+      exec:
+        - ip addr add 192.168.20.12/24 dev eth1
+  links:
+
+    - endpoints: ["r1:eth1", "r2:eth1"]
+    - endpoints: ["sw1:sw1p1", "sw2:sw2p1"]
+    - endpoints: ["hr1:eth1", "sw1:sw1p2"]
+    - endpoints: ["hr2:eth1", "sw2:sw2p2"]
+    - endpoints: ["it1:eth1", "sw1:sw1p3"]
+    - endpoints: ["it2:eth1", "sw2:sw2p3"]
+    - endpoints: ["r1:eth2", "sw1:sw1p4"]
+    - endpoints: ["r2:eth2", "sw2:sw2p4"]

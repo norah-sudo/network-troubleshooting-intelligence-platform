@@ -1,0 +1,33 @@
+
+{
+    "routers": {
+      "clab-ospftest-r1": {
+        "interface": "eth1",
+        "interface_status": "up",
+        "line_protocol": "up",
+        "ospf_neighbor_id": "2.2.2.2",
+        "ospf_state": "Full"
+      },
+      "clab-ospftest-r2": {
+        "interface": "eth1",
+        "interface_status": "up",
+        "line_protocol": "up",
+        "ospf_neighbor_id": "1.1.1.1",
+        "ospf_state": "Full"
+      }
+    },
+    "switches": {
+      "sw1": {
+        "sw1p1": {"mode": "trunk", "vlans": [10, 20]},
+        "sw1p2": {"mode": "access", "vlan": 10},
+        "sw1p3": {"mode": "access", "vlan": 20},
+        "sw1p4": {"mode": "trunk", "vlans": [10, 20]}
+      },
+      "sw2": {
+        "sw2p1": {"mode": "trunk", "vlans": [10, 20]},
+        "sw2p2": {"mode": "access", "vlan": 10},
+        "sw2p3": {"mode": "access", "vlan": 20},
+        "sw2p4": {"mode": "trunk", "vlans": [10, 20]}
+      }
+    }
+  }

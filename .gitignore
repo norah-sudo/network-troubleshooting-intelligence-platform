@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
+.env.*
+!.env.example
+*.db
+*.db-*
+*.sqlite*
+*.log
+lab/logs/
+lab/clab-*/
+.ssh/
+*.pem
+*.key
+id_rsa
+id_ed25519
